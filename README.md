@@ -1,1 +1,0 @@
-# ETH-AVAX-proj1
