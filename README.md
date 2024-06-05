@@ -16,34 +16,40 @@ The ETH_AVAX_proj1 smart contract is written in Solidity and includes the follow
 
 ### State Variables
 
-- address public owner: Stores the address of the contract owner.
-- uint tokens: Initial token balance set to 100.
-- mapping(address => uint) public addressToBalance: A mapping to keep track of token balances for each address.
+- address public `owner`: Stores the address of the contract owner.
+- uint `tokens`: Initial token balance set to 100.
+- mapping(address => uint) public `addressToBalance`: A mapping to keep track of token balances for each address.
 
 ### Constructor
 
 The constructor initializes the contract by setting the owner and assigning the initial token balance:
 
-`constructor(){ 
+```solidity
+constructor(){ 
     owner = msg.sender; 
     addressToBalance[msg.sender] = tokens; 
-}`
+}
+```
 
 ### Transfer Function with require
 
 The transfer function allows the owner to transfer tokens to another address, using require statements for validation:
 
-`function transfer(address _to,uint _amount) public{ 
+```solidity
+function transfer(address _to,uint _amount) public{ 
     require(owner == msg.sender,"Can't make transaction"); 
     require(addressToBalance[owner]>=_amount,"Insufficient balance"); 
     addressToBalance[owner] -= _amount; 
     addressToBalance[_to] += _amount; 
-}`
+}
+```
+
 ### Transfer Function with assert and revert
 
 An alternative implementation of the transfer function using assert and revert for validation:
 
-`function transfer(address _to,uint _amount) public{ 
+```solidity
+function transfer(address _to,uint _amount) public{ 
     assert(owner == msg.sender); 
     if(addressToBalance[owner]>=_amount){ 
         addressToBalance[owner] -= _amount; 
@@ -52,7 +58,9 @@ An alternative implementation of the transfer function using assert and revert f
     else{ 
         revert("Insufficient Balance"); 
     } 
-}`
+}
+```
+
 ## Deployment
 
 To deploy the `ETH_AVAX_proj1` smart contract, we can use Remix IDE.
