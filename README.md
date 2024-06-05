@@ -23,11 +23,12 @@ The ETH_AVAX_proj1 smart contract is written in Solidity and includes the follow
 ### Constructor
 
 The constructor initializes the contract by setting the owner and assigning the initial token balance:
-
+'''
 constructor(){ 
     owner = msg.sender; 
     addressToBalance[msg.sender] = tokens; 
 }
+'''
 ### Transfer Function with require
 
 The transfer function allows the owner to transfer tokens to another address, using require statements for validation:
