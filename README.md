@@ -1,6 +1,6 @@
 # ETH_AVAX_proj1
 
-This repository contains a Solidity smart contract named ETH_AVAX_proj1. The contract demonstrates a simple token transfer mechanism where the owner of the contract can transfer tokens to other addresses.
+This contract has a transfer mechanism where the owner of the contract can transfer tokens to other addresses and conditions are checked using require, assert and revert funcctions.
 
 ## Description
 
@@ -23,27 +23,27 @@ The ETH_AVAX_proj1 smart contract is written in Solidity and includes the follow
 ### Constructor
 
 The constructor initializes the contract by setting the owner and assigning the initial token balance:
-'''
-constructor(){ 
+
+`constructor(){ 
     owner = msg.sender; 
     addressToBalance[msg.sender] = tokens; 
-}
-'''
+}`
+
 ### Transfer Function with require
 
 The transfer function allows the owner to transfer tokens to another address, using require statements for validation:
 
-function transfer(address _to,uint _amount) public{ 
+`function transfer(address _to,uint _amount) public{ 
     require(owner == msg.sender,"Can't make transaction"); 
     require(addressToBalance[owner]>=_amount,"Insufficient balance"); 
     addressToBalance[owner] -= _amount; 
     addressToBalance[_to] += _amount; 
-}
+}`
 ### Transfer Function with assert and revert
 
 An alternative implementation of the transfer function using assert and revert for validation:
 
-function transfer(address _to,uint _amount) public{ 
+`function transfer(address _to,uint _amount) public{ 
     assert(owner == msg.sender); 
     if(addressToBalance[owner]>=_amount){ 
         addressToBalance[owner] -= _amount; 
@@ -52,56 +52,30 @@ function transfer(address _to,uint _amount) public{
     else{ 
         revert("Insufficient Balance"); 
     } 
-}
+}`
 ## Deployment
 
-### Prerequisites
+To deploy the `ETH_AVAX_proj1` smart contract, we can use Remix IDE.
 
-To work with this smart contract, you need the following:
+### Using Remix
 
-- Solidity compiler (version 0.8.7 or higher)
-- An Ethereum development environment like Remix, Truffle, or Hardhat.
+1. Open [Remix](https://remix.ethereum.org/).
+2. In the Contracts folder, create a new file and paste the contract code into the editor.
+3. Compile the contract, using Ctrl+S.
+4. Deploy the contract to the desired Ethereum network.
 
-### Installation
-
-Clone this repository to your local machine:
-
-git clone https://github.com/yourusername/ETH_AVAX_proj1.git
-### Compilation
-
-To compile the smart contract, use the Solidity compiler. If you are using Remix, you can simply paste the contract code into the Remix editor and compile it there. If you are using Truffle or Hardhat, follow their respective instructions for compiling contracts.
-
-### Deployment
-
-Deploy the contract using your preferred Ethereum development environment. Here is an example using Truffle:
-
-1. Navigate to your project directory:
-
-cd ETH_AVAX_proj1
-2. Create a migration script under migrations/2_deploy_contracts.js:
-
-const ETH_AVAX_proj1 = artifacts.require("ETH_AVAX_proj1");
-
-module.exports = function (deployer) {
-  deployer.deploy(ETH_AVAX_proj1);
-};
-3. Deploy the contract to your local blockchain or any Ethereum testnet:
-
-truffle migrate --network development
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the LICENSE.md file for details
 
 ## Authors
 
-- [Your Name](https://github.com/yourusername)
-
-Feel free to add more contributors as needed.
+Sujal Mahajan
 
 ## Contributing
 
-Feel free to submit issues, fork the repository, and send pull requests. For major changes, please open an issue first to discuss what you would like to change.
+Contributions are welcome! Feel free for any changes or improvements.
 
 ---
 
-Feel free to customize this README file further to suit your specific needs or preferences.
+This README provides a comprehensive guide to understanding, deploying, and using the `MyToken` smart contract.
