@@ -1,5 +1,3 @@
-Certainly! Here is the updated README file for your new contract:
-
 # ETH_AVAX_proj1
 
 This contract implements a basic token transfer mechanism where the owner of the contract can transfer tokens to other addresses. It also includes functions for depositing and withdrawing tokens with conditions checked using `require`, `assert`, and `revert` statements.
