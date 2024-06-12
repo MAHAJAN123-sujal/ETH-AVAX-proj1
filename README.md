@@ -1,16 +1,15 @@
 # ETH_AVAX_proj1
 
-This contract implements a basic token transfer mechanism where the owner of the contract can transfer tokens to other addresses. It also includes functions for depositing and withdrawing tokens with conditions checked using `require`, `assert`, and `revert` statements.
+This contract implements a simple teacher-student management system where the teacher (owner of the contract) can add students, record attendance, and assign marks. It includes functions with conditions checked using `require`, `assert`, and `revert` statements.
 
 ## Description
 
-The `ETH_AVAX_proj1` contract is a simple implementation of a token management system on the Ethereum blockchain. It includes the following functionalities:
+The `ETH_AVAX_proj1` contract is a basic implementation of a student management system on the Ethereum blockchain. It includes the following functionalities:
 
-- An initial token balance assigned to the contract owner.
-- A method for depositing tokens.
-- A method for the owner to transfer tokens to other addresses.
-- A method for the owner to withdraw tokens.
-- A mapping to keep track of token balances for each address.
+- Adding students to the class.
+- Recording student attendance.
+- Assigning marks to students.
+- A mapping to keep track of students' names, attendance, and marks.
 
 ## Contract Details
 
@@ -18,68 +17,112 @@ The `ETH_AVAX_proj1` smart contract is written in Solidity and includes the foll
 
 ### State Variables
 
-- `address public owner`: Stores the address of the contract owner.
-- `uint tokens`: Initial token balance set to 100.
-- `mapping(address => uint) public addressToBalance`: A mapping to keep track of token balances for each address.
+- `address public teacher`: Stores the address of the contract owner (teacher).
+- `mapping(address => string) public students`: A mapping to store student names by their address.
+- `mapping(address => bool) public studentExists`: A mapping to check if a student is registered.
+- `mapping(address => bool) public attendance`: A mapping to keep track of student attendance (true for present, false for absent).
+- `mapping(address => uint) public studMarks`: A mapping to store student marks.
+
+### Events
+
+- `event StudentAdded(address indexed student, string name)`: Emitted when a new student is added.
+- `event AttendanceRecorded(address indexed student, bool present)`: Emitted when attendance is recorded.
+- `event MarksAssigned(address indexed student, uint marks)`: Emitted when marks are assigned to a student.
 
 ### Constructor
 
-The constructor initializes the contract by setting the owner and assigning the initial token balance:
+The constructor initializes the contract by setting the teacher's address:
 
 ```solidity
-constructor(){
-    owner = msg.sender;
-    addressToBalance[msg.sender] = tokens;
+constructor() {
+    teacher = msg.sender;
 }
 ```
 
-### Deposit Function with assert
+### Functions
 
-The `deposit` function allows users to deposit a specified amount of tokens into their account, using `assert` to ensure the balance is correctly updated:
+#### Add Student
+
+The `addStudent` function allows the teacher to add a new student by providing their address and name:
 
 ```solidity
-function deposit(uint256 _amount) public {
-    uint256 previousBalance = addressToBalance[msg.sender];
-    addressToBalance[msg.sender] += _amount;
+function addStudent(address _student, string memory _name) public {
+    require(teacher == msg.sender, "Only teacher can perform these tasks");
+    require(!studentExists[_student], "Student already added");
+    require(bytes(_name).length > 0, "Invalid student name");
 
-    // Using assert to ensure the balance is correctly updated
-    assert(addressToBalance[msg.sender] == previousBalance + _amount);
+    students[_student] = _name;
+    attendance[_student] = false; // Initialize attendance as absent
+    studMarks[_student] = 0; // Initialize marks
+    studentExists[_student] = true;
+    emit StudentAdded(_student, _name);
 }
 ```
 
-### Transfer Function with require
+#### Record Attendance
 
-The `transfer` function allows the owner to transfer tokens to another address, using `require` statements for validation:
+The `recordAttendance` function allows the teacher to record a student's attendance:
 
 ```solidity
-function transfer(address _to, uint _amount) public {
-    require(owner == msg.sender, "Can't make transaction");
-    require(addressToBalance[owner] >= _amount, "Insufficient balance");
-    addressToBalance[owner] -= _amount;
-    addressToBalance[_to] += _amount;
+function recordAttendance(address _student, bool att) public {
+    require(teacher == msg.sender, "Only teacher can perform these tasks");
+    require(studentExists[_student], "Student not registered");
+    
+    attendance[_student] = att;
+
+    // Assert to make sure attendance is correctly recorded
+    assert(attendance[_student] == att);
+    emit AttendanceRecorded(_student, att);
 }
 ```
 
-### Withdraw Function with assert and revert
+#### Assign Marks
 
-The `withdraw` function allows the owner to withdraw tokens, using `assert` to check ownership and `revert` for validation:
+The `assignMarks` function allows the teacher to assign marks to a student:
 
 ```solidity
-function withdraw(uint _amount) public {
-    // Using assert to ensure only the owner can withdraw
-    assert(owner == msg.sender);
-    if (addressToBalance[owner] >= _amount) {
-        addressToBalance[owner] -= _amount;
+function assignMarks(address _student, uint _marks) public {
+    require(teacher == msg.sender, "Only teacher can perform these tasks");
+    require(studentExists[_student], "Student not registered");
+    if (_marks >= 0 && _marks <= 100) {
+        studMarks[_student] = _marks;
+        // Assert to make sure marks are correctly assigned
+        assert(studMarks[_student] == _marks);
+        emit MarksAssigned(_student, _marks);
     } else {
-        // Using revert to revert the transaction in case of insufficient balance
-        revert("Insufficient Balance to withdraw money");
+        revert("Marks are not in correct range");
     }
+}
+```
+
+### View Functions
+
+The following functions allow anyone to view the details of a student:
+
+- `viewAttendance`: Returns the attendance status of a student.
+- `viewMarks`: Returns the marks of a student.
+- `getStudentName`: Returns the name of a student.
+
+```solidity
+function viewAttendance(address _student) public view returns (bool) {
+    require(studentExists[_student], "Student not registered");
+    return attendance[_student];
+}
+
+function viewMarks(address _student) public view returns (uint) {
+    require(studentExists[_student], "Student not registered");
+    return studMarks[_student];
+}
+
+function getStudentName(address _student) public view returns (string memory) {
+    require(studentExists[_student], "Student not registered");
+    return students[_student];
 }
 ```
 
 ## Deployment
 
-To deploy the `ETH_AVAX_proj1` smart contract, we can use Remix IDE.
+To deploy the `ETH_AVAX_proj1` smart contract, you can use Remix IDE.
 
 ### Using Remix
 
