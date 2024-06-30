@@ -1,128 +1,101 @@
 # ETH_AVAX_proj1
 
-This contract implements a simple teacher-student management system where the teacher (owner of the contract) can add students, record attendance, and assign marks. It includes functions with conditions checked using `require`, `assert`, and `revert` statements.
+This contract implements a simple shop where customers can purchase items, the owner can manage stock, and customers can request refunds. The contract includes functions with conditions checked using `require`, `assert`, and `revert` statements.
 
 ## Description
 
-The `ETH_AVAX_proj1` contract is a basic implementation of a student management system on the Ethereum blockchain. It includes the following functionalities:
+The `shop` contract is a basic implementation of a shop on the Ethereum blockchain. It includes the following functionalities:
 
-- Adding students to the class.
-- Recording student attendance.
-- Assigning marks to students.
-- A mapping to keep track of students' names, attendance, and marks.
+- Purchasing items from the shop.
+- Adding stock to the shop inventory.
+- Requesting refunds for purchased items.
+- A mapping to keep track of customer balances.
 
 ## Contract Details
 
-The `ETH_AVAX_proj1` smart contract is written in Solidity and includes the following key components:
+The `shop` smart contract is written in Solidity and includes the following key components:
 
 ### State Variables
 
-- `address public teacher`: Stores the address of the contract owner (teacher).
-- `mapping(address => string) public students`: A mapping to store student names by their address.
-- `mapping(address => bool) public studentExists`: A mapping to check if a student is registered.
-- `mapping(address => bool) public attendance`: A mapping to keep track of student attendance (true for present, false for absent).
-- `mapping(address => uint) public studMarks`: A mapping to store student marks.
-
-### Events
-
-- `event StudentAdded(address indexed student, string name)`: Emitted when a new student is added.
-- `event AttendanceRecorded(address indexed student, bool present)`: Emitted when attendance is recorded.
-- `event MarksAssigned(address indexed student, uint marks)`: Emitted when marks are assigned to a student.
+- `address public owner`: Stores the address of the shop owner.
+- `uint public stock`: Stores the current stock of items in the shop.
+- `uint public itemPrice`: Stores the price of each item in the shop.
+- `mapping(address => uint) public balances`: A mapping to keep track of customer balances.
 
 ### Constructor
 
-The constructor initializes the contract by setting the teacher's address:
+The constructor initializes the contract by setting the owner's address and initializing the stock and item price:
 
 ```solidity
-constructor() {
-    teacher = msg.sender;
+constructor(uint initialStock, uint initialPrice) {
+    owner = msg.sender;
+    stock = initialStock;
+    itemPrice = initialPrice; 
+}
+```
+
+### Modifier
+
+#### `onlyOwner`
+
+The `onlyOwner` modifier restricts access to functions that can only be called by the shop owner:
+
+```solidity
+modifier onlyOwner() {
+    require(msg.sender == owner, "Only owner can call this function"); 
+    _;
 }
 ```
 
 ### Functions
 
-#### Add Student
+#### `purchaseItem`
 
-The `addStudent` function allows the teacher to add a new student by providing their address and name:
+The `purchaseItem` function allows customers to purchase items from the shop:
 
 ```solidity
-function addStudent(address _student, string memory _name) public {
-    require(teacher == msg.sender, "Only teacher can perform these tasks");
-    require(!studentExists[_student], "Student already added");
-    require(bytes(_name).length > 0, "Invalid student name");
+function purchaseItem() public payable {
+    require(stock > 0, "Item is out of stock");
 
-    students[_student] = _name;
-    attendance[_student] = false; // Initialize attendance as absent
-    studMarks[_student] = 0; // Initialize marks
-    studentExists[_student] = true;
-    emit StudentAdded(_student, _name);
+    stock -= 1; 
+    balances[msg.sender] += itemPrice; 
 }
 ```
 
-#### Record Attendance
+#### `addStock`
 
-The `recordAttendance` function allows the teacher to record a student's attendance:
+The `addStock` function allows the owner to add stock to the shop:
 
 ```solidity
-function recordAttendance(address _student, bool att) public {
-    require(teacher == msg.sender, "Only teacher can perform these tasks");
-    require(studentExists[_student], "Student not registered");
-    
-    attendance[_student] = att;
+function addStock(uint items, uint costPrice) public onlyOwner {
+    assert(items > 0); 
 
-    // Assert to make sure attendance is correctly recorded
-    assert(attendance[_student] == att);
-    emit AttendanceRecorded(_student, att);
+    uint totalCost = items * costPrice;
+    balances[owner] -= totalCost; 
+
+    stock += items; 
 }
 ```
 
-#### Assign Marks
+#### `requestRefund`
 
-The `assignMarks` function allows the teacher to assign marks to a student:
+The `requestRefund` function allows customers to request refunds for items purchased:
 
 ```solidity
-function assignMarks(address _student, uint _marks) public {
-    require(teacher == msg.sender, "Only teacher can perform these tasks");
-    require(studentExists[_student], "Student not registered");
-    if (_marks >= 0 && _marks <= 100) {
-        studMarks[_student] = _marks;
-        // Assert to make sure marks are correctly assigned
-        assert(studMarks[_student] == _marks);
-        emit MarksAssigned(_student, _marks);
-    } else {
-        revert("Marks are not in correct range");
+function requestRefund() public {
+    uint amount = balances[msg.sender];
+    if (amount < (itemPrice - 20)) {
+        revert("No balance to refund"); 
     }
-}
-```
 
-### View Functions
-
-The following functions allow anyone to view the details of a student:
-
-- `viewAttendance`: Returns the attendance status of a student.
-- `viewMarks`: Returns the marks of a student.
-- `getStudentName`: Returns the name of a student.
-
-```solidity
-function viewAttendance(address _student) public view returns (bool) {
-    require(studentExists[_student], "Student not registered");
-    return attendance[_student];
-}
-
-function viewMarks(address _student) public view returns (uint) {
-    require(studentExists[_student], "Student not registered");
-    return studMarks[_student];
-}
-
-function getStudentName(address _student) public view returns (string memory) {
-    require(studentExists[_student], "Student not registered");
-    return students[_student];
+    balances[msg.sender] -= (itemPrice - 20); 
+    stock += 1;
 }
 ```
 
 ## Deployment
 
-To deploy the `ETH_AVAX_proj1` smart contract, you can use Remix IDE.
+To deploy the `shop` smart contract, you can use Remix IDE.
 
 ### Using Remix
 
@@ -145,4 +118,4 @@ Contributions are welcome! Feel free to submit changes or improvements.
 
 ---
 
-This README provides a comprehensive guide to understanding, deploying, and using the `ETH_AVAX_proj1` smart contract.
+This README provides a comprehensive guide to understanding, deploying, and using the `shop` smart contract.
